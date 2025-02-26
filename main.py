@@ -1,28 +1,22 @@
-import argparse
 import os
-import time
 from loguru import logger
 
 import cv2
-import json
 
 import torch
 
-from yolox.data.data_augment import ValTransform
-from yolox.data.datasets import COCO_CLASSES
-from yolox.exp import get_exp
-from yolox.utils import fuse_model, get_model_info, postprocess, vis
-
-from tools.demo import *
+from detection_yolox.yolox.exp import get_exp
+from detection_yolox.yolox.utils import get_model_info
+from detection_yolox.tools.demo import *
 
 
-INPUT_PATH = 'assets/banana.png'
+INPUT_PATH = 'assets/Cachos_de_banana_764ee2e24b.png'
 CONF = 0.25
-NMS = 0.45
+NMS = 0.1
 TSIZE = 640
 
 
-def image_demo(predictor, vis_folder, path, current_time, save_result):
+def image_demo(predictor, path):
     if os.path.isdir(path):
         files = get_image_list(path)
     else:
@@ -35,15 +29,7 @@ def image_demo(predictor, vis_folder, path, current_time, save_result):
     return img_info['raw_img'], frameData
 
 
-def show_bananas(path, img_info, frame_data):
-    if os.path.isdir(path):
-        files = get_image_list(path)
-    else:
-        files = [path]
-    files.sort()
-    
-    image_name = files[0]
-
+def show_bananas(img_info, frame_data):
     for idx, data in frame_data.items():
         x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
         recorte = img_info[y0:y1, x0:x1]  # Recortar a imagem
@@ -62,8 +48,6 @@ def main(exp):
     file_name = os.path.join(exp.output_dir, exp.exp_name)
     os.makedirs(file_name, exist_ok=True)
 
-    vis_folder = None
-        
     exp.test_conf = CONF
     exp.nmsthre = NMS
     exp.test_size = (TSIZE, TSIZE)
@@ -84,13 +68,12 @@ def main(exp):
     trt_file = None
     decoder = None
 
-    predictor = Predictor(
-        model, exp, COCO_CLASSES, trt_file, decoder,
-        'gpu', False, False,
-    )
-    current_time = time.localtime()
-    img_info, frameData = image_demo(predictor, vis_folder, INPUT_PATH, current_time, False)
-    show_bananas(INPUT_PATH, img_info, frameData)
+    predictor = Predictor(model, exp,
+                          trt_file=trt_file,
+                          decoder=decoder,
+                          device='gpu')
+    img_info, frameData = image_demo(predictor, INPUT_PATH)
+    show_bananas(img_info, frameData)
 
 
 if __name__ == "__main__":
