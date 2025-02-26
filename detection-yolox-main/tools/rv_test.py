@@ -22,6 +22,19 @@ NMS = 0.45
 TSIZE = 640
 
 
+def image_demo(predictor, vis_folder, path, current_time, save_result):
+    if os.path.isdir(path):
+        files = get_image_list(path)
+    else:
+        files = [path]
+    files.sort()
+    
+    image_name = files[0]
+    outputs, img_info = predictor.inference(image_name)
+    _, frameData = predictor.visual(outputs[0], img_info, predictor.confthre)
+    return img_info['raw_img'], frameData
+
+
 def show_bananas(path, img_info, frame_data):
     if os.path.isdir(path):
         files = get_image_list(path)
@@ -36,7 +49,7 @@ def show_bananas(path, img_info, frame_data):
         recorte = img_info[y0:y1, x0:x1]  # Recortar a imagem
 
         # Salvar a imagem recortada
-        cv2.imwrite(f"detected_{idx}.jpg", recorte)
+        cv2.imwrite(f"out/detected_{idx}.jpg", recorte)
 
         # Exibir a imagem recortada (opcional)
         cv2.imshow(f"Recorte {idx}", recorte)
