@@ -9,13 +9,11 @@ from detection_yolox.yolox.exp import get_exp
 from detection_yolox.yolox.utils import get_model_info, postprocess, vis
 #from detection_yolox.tools.demo import *
 
+
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
-INPUT_PATH = 'banana1.jpg'
 CONF = 0.25
 NMS = 0.1
 TSIZE = 640
-
-
 
 
 def get_image_list(path):
@@ -27,6 +25,7 @@ def get_image_list(path):
             if ext in IMAGE_EXT:
                 image_names.append(apath)
     return image_names
+
 
 def image_demo(predictor, path):
     if os.path.isdir(path):
@@ -56,7 +55,7 @@ def show_bananas(img_info, frame_data):
     cv2.destroyAllWindows()
 
 
-def main(exp):
+def main(exp, input_path):
     file_name = os.path.join(exp.output_dir, exp.exp_name)
     os.makedirs(file_name, exist_ok=True)
 
@@ -84,11 +83,13 @@ def main(exp):
                           trt_file=trt_file,
                           decoder=decoder,
                           device='gpu')
-    img_info, frameData = image_demo(predictor, INPUT_PATH)
+    img_info, frameData = image_demo(predictor, input_path)
     show_bananas(img_info, frameData)
 
 
 if __name__ == "__main__":
+    INPUT_PATH = 'banana1.jpg'
+
     exp_name = 'yolox-s'
     exp = get_exp(None, exp_name)
-    main(exp)
+    main(exp, INPUT_PATH)
