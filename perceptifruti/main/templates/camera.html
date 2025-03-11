@@ -37,6 +37,22 @@
 
 {% block script %}
 	<script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
 		const webcamElement = document.getElementById('webcam');
 		const canvasElement = document.getElementById('canvas');
 		const webcam = new Webcam(webcamElement, 'user', canvasElement);
@@ -56,6 +72,17 @@
 			pictureContainer.classList.remove('d-none');
 			const pictureImage = document.getElementById('picture-img');
 			pictureImage.src = picture;
+            
+            const formData = new FormData();
+            formData.append('image', picture);
+            
+            fetch('{% url 'receive_webcam_image' %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                },
+                body: formData,
+            })
 		});
 	</script>
 {% endblock %}
