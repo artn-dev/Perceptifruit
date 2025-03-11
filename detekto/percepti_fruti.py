@@ -5,12 +5,12 @@ import cv2
 
 import torch
 
-from detection_yolox.yolox.exp import get_exp
-from detection_yolox.yolox.utils import get_model_info
-from detection_yolox.tools.demo import *
+from yolox.exp import get_exp
+from yolox.utils import get_model_info
+from tools.demo import *
 
 
-INPUT_PATH = 'assets/Cachos_de_banana_764ee2e24b.png'
+INPUT_PATH = 'banana1.jpg'
 CONF = 0.25
 NMS = 0.1
 TSIZE = 640
