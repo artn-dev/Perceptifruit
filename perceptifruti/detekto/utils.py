@@ -2,19 +2,31 @@ import os
 from loguru import logger
 
 import cv2
-
 import torch
 
+
 from detection_yolox.yolox.exp import get_exp
-from detection_yolox.yolox.utils import get_model_info
-from detection_yolox.tools.demo import *
+from detection_yolox.yolox.utils import get_model_info, postprocess, vis
+#from detection_yolox.tools.demo import *
 
-
-INPUT_PATH = 'assets/Cachos_de_banana_764ee2e24b.png'
+IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
+INPUT_PATH = 'banana1.jpg'
 CONF = 0.25
 NMS = 0.1
 TSIZE = 640
 
+
+
+
+def get_image_list(path):
+    image_names = []
+    for maindir, subdir, file_name_list in os.walk(path):
+        for filename in file_name_list:
+            apath = os.path.join(maindir, filename)
+            ext = os.path.splitext(apath)[1]
+            if ext in IMAGE_EXT:
+                image_names.append(apath)
+    return image_names
 
 def image_demo(predictor, path):
     if os.path.isdir(path):
