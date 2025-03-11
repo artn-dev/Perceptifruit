@@ -1,0 +1,13 @@
+services:
+  server:
+    image: perceptifruit
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: perceptifruit
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: python /app/perceptifruti/manage.py runserver 0.0.0.0:8000
