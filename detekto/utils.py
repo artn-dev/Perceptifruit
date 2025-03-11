@@ -5,9 +5,9 @@ import cv2
 
 import torch
 
-from yolox.exp import get_exp
-from yolox.utils import get_model_info
-from tools.demo import *
+from detection_yolox.yolox.exp import get_exp
+from detection_yolox.yolox.utils import get_model_info
+from detection_yolox.tools.demo import *
 
 
 INPUT_PATH = 'banana1.jpg'
