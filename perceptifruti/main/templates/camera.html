@@ -23,9 +23,14 @@
 		<div class="col-6 d-none" id="picture-container">
 			<div class="card mb-4 p-5">
 				<div class="card-header">
-					<h5>Última foto tirada</h5>
+					<h5>Análise</h5>
 				</div>
 				<div class="card-body d-flex justify-content-center align-items-center">
+					<div id="picture-loading" class="py-5">
+						<div class="spinner-border text-dark" role="status" style="width: 10rem; height: 10rem;">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
 					<img src="" alt="" id="picture-img">
 				</div>
 			</div>
@@ -65,24 +70,29 @@
 				console.log(err);
 			});
 
-		document.getElementById('take-photo-button').addEventListener('click', function(){
-			let picture = webcam.snap();
-			console.log(picture);
+		document.getElementById('take-photo-button').addEventListener('click', async function() {
 			const pictureContainer = document.getElementById('picture-container');
-			pictureContainer.classList.remove('d-none');
 			const pictureImage = document.getElementById('picture-img');
-			pictureImage.src = picture;
+			const spinner = document.getElementById('picture-loading');
+
+			pictureContainer.classList.remove('d-none');
             
             const formData = new FormData();
+			let picture = webcam.snap();
             formData.append('image', picture);
             
-            fetch('{% url 'receive_webcam_image' %}', {
+            const res = await fetch('{% url 'receive_webcam_image' %}', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrftoken,
                 },
                 body: formData,
             })
+			const data = await res.json();
+			const imageUrl = data.image_url;
+
+			spinner.classList.add('d-none');
+			pictureImage.src = imageUrl;
 		});
 	</script>
 {% endblock %}
