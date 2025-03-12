@@ -7,7 +7,7 @@ import torch
 
 from detection_yolox.yolox.exp import get_exp
 from detection_yolox.yolox.utils import get_model_info, postprocess, vis
-#from detection_yolox.tools.demo import *
+from predictor import Predictor
 
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
@@ -27,33 +27,44 @@ def get_image_list(path):
     return image_names
 
 
-def image_demo(predictor, path):
-    if os.path.isdir(path):
-        files = get_image_list(path)
-    else:
-        files = [path]
-    files.sort()
+# def image_demo(predictor, path):
+#     if os.path.isdir(path):
+#         files = get_image_list(path)
+#     else:
+#         files = [path]
+#     files.sort()
     
-    image_name = files[0]
-    outputs, img_info = predictor.inference(image_name)
-    _, frameData = predictor.visual(outputs[0], img_info, predictor.confthre)
-    return img_info['raw_img'], frameData
+#     image_name = files[0]
+#     outputs, img_info = predictor.inference(image_name)
+#     _, frameData = predictor.visual(outputs[0], img_info, predictor.confthre)
+#     return img_info['raw_img'], frameData
+# def show_bananas(img_info, frame_data):
+#     for idx, data in frame_data.items():
+#         x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
+#         recorte = img_info[y0:y1, x0:x1]  # Recortar a imagem
 
+#         # Salvar a imagem recortada
+#         cv2.imwrite(f"out/detected_{idx}.jpg", recorte)
 
-def show_bananas(img_info, frame_data):
-    for idx, data in frame_data.items():
-        x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
-        recorte = img_info[y0:y1, x0:x1]  # Recortar a imagem
+#         # Exibir a imagem recortada (opcional)
+#         cv2.imshow(f"Recorte {idx}", recorte)
 
-        # Salvar a imagem recortada
-        cv2.imwrite(f"out/detected_{idx}.jpg", recorte)
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
 
-        # Exibir a imagem recortada (opcional)
-        cv2.imshow(f"Recorte {idx}", recorte)
+def get_banana_clusters(predictor, image_path):
+    outputs, img_info = predictor.inference(image_path)
+    banana_crops, frame_data = predictor.get_crops(outputs[0], img_info)
+
+    return banana_crops, frame_data
+
+def show_banana_crops(banana_crops):
+    for idx, crop in enumerate(banana_crops):
+        cv2.imshow(f"Cacho {idx+1}", crop)
+
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
 
 def main(exp, input_path):
     file_name = os.path.join(exp.output_dir, exp.exp_name)
@@ -83,8 +94,10 @@ def main(exp, input_path):
                           trt_file=trt_file,
                           decoder=decoder,
                           device='gpu')
-    img_info, frameData = image_demo(predictor, input_path)
-    show_bananas(img_info, frameData)
+    # img_info, frameData = image_demo(predictor, input_path)
+    # show_bananas(img_info, frameData)
+    banana_crops, frame_data = get_banana_clusters(predictor, input_path)
+    show_banana_crops(banana_crops)
 
 
 if __name__ == "__main__":
