@@ -6,10 +6,10 @@ from loguru import logger
 import cv2
 import torch
 
-from detection_yolox.yolox.data.data_augment import ValTransform
-from detection_yolox.yolox.data.datasets import COCO_CLASSES
-from detection_yolox.yolox.utils import postprocess
-from visualize import vis
+from yolox.data.data_augment import ValTransform
+from yolox.data.datasets import COCO_CLASSES
+from yolox.utils import postprocess
+from .visualize import vis
 
 
 class Predictor(object):
@@ -64,7 +64,7 @@ class Predictor(object):
         img = torch.from_numpy(img).unsqueeze(0)
         img = img.float()
         if self.device == "gpu":
-            img = img.cuda()
+            img = img.to('cuda' if torch.cuda.is_available() else 'cpu')
             if self.fp16:
                 img = img.half()  # to FP16
 
@@ -79,6 +79,54 @@ class Predictor(object):
             )
             logger.info("Infer time: {:.4f}s".format(time.time() - t0))
         return outputs, img_info
+
+    def get_crops(self, output, img_info, cls_conf=0.35):
+            """
+            Extrai os recortes da imagem original com base nos bounding boxes detectados.
+            Retorna: lista de imagens recortadas (banana_crops) e o frame_data.
+            """
+            ratio = img_info["ratio"]
+            img = img_info["raw_img"]
+            if output is None:
+                return [], {}
+
+            output = output.cpu()
+            bboxes = output[:, 0:4]
+            bboxes /= ratio
+
+            cls = output[:, 6]
+            scores = output[:, 4] * output[:, 5]
+
+            banana_crops = []
+            frame_data = {}
+            count = 0
+
+            for i in range(len(bboxes)):
+                score = scores[i]
+                if score < cls_conf:
+                    continue
+
+                x0 = int(bboxes[i][0])
+                y0 = int(bboxes[i][1])
+                x1 = int(bboxes[i][2])
+                y1 = int(bboxes[i][3])
+
+                # Garantir que os limites estão dentro da imagem
+                x0 = max(0, x0)
+                y0 = max(0, y0)
+                x1 = min(img.shape[1], x1)
+                y1 = min(img.shape[0], y1)
+
+                crop = img[y0:y1, x0:x1]
+                banana_crops.append(crop)
+
+                frame_data[count] = {
+                    'x0': x0, 'y0': y0, 'x1': x1, 'y1': y1,
+                    'class': f'{self.cls_names[int(cls[i])]}:{score*100:.1f}%'
+                }
+                count += 1
+
+            return banana_crops, frame_data
 
     def visual(self, output, img_info, cls_conf=0.35):
         ratio = img_info["ratio"]
