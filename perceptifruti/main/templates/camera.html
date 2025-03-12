@@ -15,7 +15,7 @@
 				<canvas id="canvas" class="d-none"></canvas>
 				<div class="card-body">
 					<div class="row justify-content-center">
-						<button id="take-photo-button" class="btn btn-primary">Tirar foto</button>
+						<button id="take-photo-button" class="btn btn-light rounded-pill">Tirar foto</button>
 					</div>
 				</div>
 			</div>
@@ -26,9 +26,13 @@
 					<h5>Análise</h5>
 				</div>
 				<div class="card-body d-flex justify-content-center align-items-center">
-					<div id="picture-loading" class="py-5">
-						<div class="spinner-border text-dark" role="status" style="width: 10rem; height: 10rem;">
-							<span class="visually-hidden">Loading...</span>
+					<div id="picture-loading" class="py-5 d-flex gap-3">
+						<span class="visually-hidden">Loading...</span>
+						<div class="spinner-grow text-dark" role="status" style="width: 3rem; height: 3rem;">
+						</div>
+						<div class="spinner-grow text-dark" role="status" style="width: 3rem; height: 3rem;">
+						</div>
+						<div class="spinner-grow text-dark" role="status" style="width: 3rem; height: 3rem;">
 						</div>
 					</div>
 					<img src="" alt="" id="picture-img">
