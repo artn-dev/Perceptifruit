@@ -73,6 +73,9 @@ def draw_bboxes_with_classification(img, frame_data, tags):
     font_scale=0.5 
     thickness=2
 
+
+    # Para essa função, eu to supondo que as tags vão vir no formato ['green', 'ripe, 'green', 'ripe', 'overripe']
+    # Quando decidir como que o controlador vai enviar isso, eu posso ajustar aqui
     for idx, data in frame_data.items():
         x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
         
