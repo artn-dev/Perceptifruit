@@ -16,16 +16,15 @@ NMS = 0.1
 TSIZE = 640
 
 
-def get_image_list(path):
-    image_names = []
-    for maindir, subdir, file_name_list in os.walk(path):
-        for filename in file_name_list:
-            apath = os.path.join(maindir, filename)
-            ext = os.path.splitext(apath)[1]
-            if ext in IMAGE_EXT:
-                image_names.append(apath)
-    return image_names
-
+# def get_image_list(path):
+#     image_names = []
+#     for maindir, subdir, file_name_list in os.walk(path):
+#         for filename in file_name_list:
+#             apath = os.path.join(maindir, filename)
+#             ext = os.path.splitext(apath)[1]
+#             if ext in IMAGE_EXT:
+#                 image_names.append(apath)
+#     return image_names
 
 # def image_demo(predictor, path):
 #     if os.path.isdir(path):
@@ -38,6 +37,7 @@ def get_image_list(path):
 #     outputs, img_info = predictor.inference(image_name)
 #     _, frameData = predictor.visual(outputs[0], img_info, predictor.confthre)
 #     return img_info['raw_img'], frameData
+
 # def show_bananas(img_info, frame_data):
 #     for idx, data in frame_data.items():
 #         x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
