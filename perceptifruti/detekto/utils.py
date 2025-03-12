@@ -68,6 +68,42 @@ def show_banana_crops(banana_crops):
     cv2.destroyAllWindows()
 
 
+def draw_bboxes_with_classification(image_path, frame_data, tags=None):
+    # Isso daqui tá hardcoded por enquanto. Em algum momento eu devo voltar e melhorar essas informações
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    color=(0, 255, 0)
+    font_scale=0.5 
+    thickness=2
+
+    img = cv2.imread(image_path)
+
+    # Para essa função, eu to supondo que as tags vão vir no formato ['green', 'ripe, 'green', 'ripe', 'overripe']
+    # Quando decidir como que o controlador vai enviar isso, eu posso ajustar aqui
+    for idx, data in frame_data.items():
+        x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
+        
+        cv2.rectangle(img, (x0, y0), (x1, y1), color, thickness)
+
+        text = tags[idx] if tags else data['class']
+        text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+        text_x = x0 + (x1 - x0 - text_size[0]) // 2 
+        text_y = y0 - 10  
+
+        
+        text_background_color = (0, 0, 0)  
+        cv2.rectangle(
+            img, 
+            (text_x - 2, text_y - text_size[1] - 2),
+            (text_x + text_size[0] + 2, text_y + 2),
+            text_background_color, 
+            -1
+        )
+        
+        cv2.putText(img, text, (text_x, text_y), font, font_scale, color, thickness)
+
+    return img
+
+
 def main(exp, input_path, show_bananas=False):
     file_name = os.path.join(exp.output_dir, exp.exp_name)
     os.makedirs(file_name, exist_ok=True)
