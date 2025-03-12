@@ -1,13 +1,12 @@
+import base64
+import cv2
+import os
+
+from datetime import datetime
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
-from datetime import datetime
-from PIL import Image
-from io import BytesIO
-import base64
-import os
-import cv2
 
 from detekto.utils import main as perform_detection, draw_bboxes_with_classification
 from detekto.detection_yolox.exps.default.yolox_s import Exp
@@ -15,14 +14,6 @@ from detekto.detection_yolox.exps.default.yolox_s import Exp
 
 def home(request):
     return render(request, 'camera.html')
-
-
-def receive_webcam_image(request):
-    image_b64 = request.POST['image'].split(',')[1]
-    image_pillow = Image.open(BytesIO(base64.b64decode(image_b64)))
-    # Saves image
-    # image_pillow.save('webcam.png')
-    return HttpResponse(status=200)
 
 
 class DetectBananas(View):
@@ -62,7 +53,6 @@ class DetectBananas(View):
 
     async def post(self, request):
         input_path = self.receive_webcam_image()
-        # input_path = '/app/assets/banana.png'
         banana_crops, frame_data  = perform_detection(Exp(), input_path)
         # TODO: Passar imagens de bananas para classificador gerar lista de classificações
         output_path = self.save_proccessed_img(input_path, frame_data)
