@@ -80,6 +80,8 @@
 			const spinner = document.getElementById('picture-loading');
 
 			pictureContainer.classList.remove('d-none');
+			pictureImage.classList.add('d-none');
+			spinner.classList.remove('d-none');
             
             const formData = new FormData();
 			let picture = webcam.snap();
@@ -97,6 +99,7 @@
 
 			spinner.classList.add('d-none');
 			pictureImage.src = imageUrl;
+			pictureImage.classList.remove('d-none');
 		});
 	</script>
 {% endblock %}
