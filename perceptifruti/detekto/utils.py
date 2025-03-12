@@ -5,9 +5,9 @@ import cv2
 import torch
 
 
-from detection_yolox.yolox.exp import get_exp
-from detection_yolox.yolox.utils import get_model_info, postprocess, vis
-from predictor import Predictor
+from yolox.exp import get_exp
+from yolox.utils import get_model_info, postprocess, vis
+from .predictor import Predictor
 
 
 IMAGE_EXT = [".jpg", ".jpeg", ".webp", ".bmp", ".png"]
@@ -58,6 +58,7 @@ def get_banana_clusters(predictor, image_path):
 
     return banana_crops, frame_data
 
+
 def show_banana_crops(banana_crops):
     for idx, crop in enumerate(banana_crops):
         cv2.imshow(f"Cacho {idx+1}", crop)
@@ -66,7 +67,8 @@ def show_banana_crops(banana_crops):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def main(exp, input_path):
+
+def main(exp, input_path, show_bananas=False):
     file_name = os.path.join(exp.output_dir, exp.exp_name)
     os.makedirs(file_name, exist_ok=True)
 
@@ -77,7 +79,8 @@ def main(exp, input_path):
     model = exp.get_model()
     logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
 
-    model.cuda()
+    # model.cuda()
+    model.to('cuda' if torch.cuda.is_available() else 'cpu')
     model.eval()
 
     ckpt_file = 'yolox-dist/yolox_s.pth'
@@ -97,7 +100,9 @@ def main(exp, input_path):
     # img_info, frameData = image_demo(predictor, input_path)
     # show_bananas(img_info, frameData)
     banana_crops, frame_data = get_banana_clusters(predictor, input_path)
-    show_banana_crops(banana_crops)
+    if show_bananas:
+        show_banana_crops(banana_crops)
+    return banana_crops, frame_data
 
 
 if __name__ == "__main__":
@@ -105,4 +110,4 @@ if __name__ == "__main__":
 
     exp_name = 'yolox-s'
     exp = get_exp(None, exp_name)
-    main(exp, INPUT_PATH)
+    main(exp, INPUT_PATH, True)

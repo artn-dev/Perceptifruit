@@ -6,10 +6,10 @@ from loguru import logger
 import cv2
 import torch
 
-from detection_yolox.yolox.data.data_augment import ValTransform
-from detection_yolox.yolox.data.datasets import COCO_CLASSES
-from detection_yolox.yolox.utils import postprocess
-from visualize import vis
+from yolox.data.data_augment import ValTransform
+from yolox.data.datasets import COCO_CLASSES
+from yolox.utils import postprocess
+from .visualize import vis
 
 
 class Predictor(object):
@@ -64,7 +64,7 @@ class Predictor(object):
         img = torch.from_numpy(img).unsqueeze(0)
         img = img.float()
         if self.device == "gpu":
-            img = img.cuda()
+            img = img.to('cuda' if torch.cuda.is_available() else 'cpu')
             if self.fp16:
                 img = img.half()  # to FP16
 
