@@ -10,6 +10,7 @@ from django.views import View
 
 from detekto.utils import main as perform_detection, draw_bboxes_with_classification
 from detekto.detection_yolox.exps.default.yolox_s import Exp
+from classifier.apps import ClassifierConfig
 
 
 def home(request):
@@ -54,9 +55,16 @@ class DetectBananas(View):
     async def post(self, request):
         input_path = self.receive_webcam_image()
         banana_crops, frame_data  = perform_detection(Exp(), input_path)
+
         # TODO: Passar imagens de bananas para classificador gerar lista de classificações
+        classifier = ClassifierConfig.model
+        if classifier:
+            pass
+
         output_path = self.save_proccessed_img(input_path, frame_data)
         output_url = self.get_url(output_path)
+
+        os.remove(input_path)
 
         return JsonResponse({ 'image_url': output_url })
 

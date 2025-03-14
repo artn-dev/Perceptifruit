@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'main',
     'detekto',
     'yolox',
+    'classifier',
 ]
 
 MIDDLEWARE = [
@@ -131,3 +132,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CLASSIFIER_PATH = BASE_DIR / 'lib' / 'classifier'
