@@ -6,7 +6,7 @@ import torch
 
 
 from yolox.exp import get_exp
-from yolox.utils import get_model_info, postprocess, vis
+from yolox.utils import get_model_info
 from .predictor import Predictor
 
 
@@ -15,42 +15,6 @@ CONF = 0.25
 NMS = 0.1
 TSIZE = 640
 
-
-# def get_image_list(path):
-#     image_names = []
-#     for maindir, subdir, file_name_list in os.walk(path):
-#         for filename in file_name_list:
-#             apath = os.path.join(maindir, filename)
-#             ext = os.path.splitext(apath)[1]
-#             if ext in IMAGE_EXT:
-#                 image_names.append(apath)
-#     return image_names
-
-# def image_demo(predictor, path):
-#     if os.path.isdir(path):
-#         files = get_image_list(path)
-#     else:
-#         files = [path]
-#     files.sort()
-    
-#     image_name = files[0]
-#     outputs, img_info = predictor.inference(image_name)
-#     _, frameData = predictor.visual(outputs[0], img_info, predictor.confthre)
-#     return img_info['raw_img'], frameData
-
-# def show_bananas(img_info, frame_data):
-#     for idx, data in frame_data.items():
-#         x0, y0, x1, y1 = data['x0'], data['y0'], data['x1'], data['y1']
-#         recorte = img_info[y0:y1, x0:x1]  # Recortar a imagem
-
-#         # Salvar a imagem recortada
-#         cv2.imwrite(f"out/detected_{idx}.jpg", recorte)
-
-#         # Exibir a imagem recortada (opcional)
-#         cv2.imshow(f"Recorte {idx}", recorte)
-
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
 
 def get_banana_clusters(predictor, image_path):
     outputs, img_info = predictor.inference(image_path)
@@ -133,11 +97,7 @@ def main(exp, input_path, show_bananas=False):
                           trt_file=trt_file,
                           decoder=decoder,
                           device='gpu')
-    # img_info, frameData = image_demo(predictor, input_path)
-    # show_bananas(img_info, frameData)
     banana_crops, frame_data = get_banana_clusters(predictor, input_path)
-    if show_bananas:
-        show_banana_crops(banana_crops)
     return banana_crops, frame_data
 
 
