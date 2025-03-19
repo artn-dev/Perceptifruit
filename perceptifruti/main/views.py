@@ -16,6 +16,9 @@ from classifier.apps import ClassifierConfig
 def home(request):
     return render(request, 'camera.html')
 
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
 
 class DetectBananas(View):
     def receive_webcam_image(self):
