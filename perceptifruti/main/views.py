@@ -11,6 +11,7 @@ from django.views import View
 from detekto.utils import main as perform_detection, draw_bboxes_with_classification
 from detekto.detection_yolox.exps.default.yolox_s import Exp
 from classifier.apps import ClassifierConfig
+from classifier.models import FruitReading
 
 
 def home(request):

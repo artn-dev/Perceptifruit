@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -110,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Recife'
 
 USE_I18N = True
 
@@ -134,3 +135,17 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 CLASSIFIER_PATH = BASE_DIR / 'lib' / 'classifier'
+
+USE_I18N = True
+USE_L10N = True
+
+LANGUAGES = [
+    ('en-us', 'English'),
+    ('pt-BR', 'Português'),
+]
+
+LANGUAGE_CODE = 'pt-BR'
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
