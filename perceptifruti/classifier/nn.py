@@ -7,8 +7,10 @@ class RipenessClassifier(nn.Module):
         super().__init__()
         self.fc = nn.Linear(10, 2)
 
-        device = 'cuda' if torch.cuda_is_available() else 'cpu'
-        self.load_state_dict(filename)
+        
+        device = 'cpu'
+
+        
         self.to(device)
         self.eval()
 

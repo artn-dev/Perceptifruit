@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -134,7 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-CLASSIFIER_PATH = BASE_DIR / 'lib' / 'classifier'
+CLASSIFIER_PATH = BASE_DIR / 'classifier'
 
 USE_I18N = True
 USE_L10N = True

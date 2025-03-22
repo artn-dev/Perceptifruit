@@ -27,3 +27,5 @@ onnx>=1.13.0
 onnx-simplifier==0.4.10
 
 torchvision==0.19.1
+ 
+tensorflow

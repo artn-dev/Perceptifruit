@@ -47,6 +47,7 @@
 		
 	</div>
 </div>
+{% csrf_token %}
 {% endblock %}
 
 {% block script %}
@@ -66,18 +67,19 @@
             return cookieValue;
         }
 
-        const csrftoken = getCookie('csrftoken');
+        const csrftoken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
 		const webcamElement = document.getElementById('webcam');
 		const canvasElement = document.getElementById('canvas');
 		const webcam = new Webcam(webcamElement, 'user', canvasElement);
-
-		webcam.start()
-			.then(result =>{
-				console.log("webcam started");
+		
+		navigator.mediaDevices
+			.getUserMedia({ video: true })
+			.then((stream) => {
+				webcamElement.srcObject = stream;
 			})
-			.catch(err => {
-				console.log(err);
-			});
+			.catch((error) => {
+				console.log('Error accessing webcam:', error);
+			})
 
 		document.getElementById('take-photo-button').addEventListener('click', async function() {
 			const pictureContainer = document.getElementById('picture-container');
@@ -91,11 +93,15 @@
 			spinner.classList.remove('d-none');
 			streamContainer.classList.add('d-none');
 
+			const context = canvasElement.getContext('2d');
+			canvasElement.width = webcamElement.videoWidth;
+			canvasElement.height = webcamElement.videoHeight;
+			context.drawImage(webcamElement, 0, 0, canvasElement.width, canvasElement.height);
             
             const formData = new FormData();
-			let picture = webcam.snap();
+			const picture = canvasElement.toDataURL('image/png');
             formData.append('image', picture);
-            
+
             const res = await fetch('{% url 'receive_webcam_image' %}', {
                 method: 'POST',
                 headers: {
@@ -103,9 +109,10 @@
                 },
                 body: formData,
             })
+			
 			const data = await res.json();
 			const imageUrl = data.image_url;
-
+			
 			spinner.classList.add('d-none');
 			pictureImage.src = imageUrl;
 			pictureImage.classList.remove('d-none');
