@@ -63,6 +63,7 @@ class DetectBananas(View):
         # TODO: Passar imagens de bananas para classificador gerar lista de classificações
         classifier = ClassifierConfig.model
         if classifier:
+            classifier.classify_image(os.path.join(settings.BASE_DIR / 'test_train_dataset/CLASS B/0 (1).png'))
             pass
 
         output_path = self.save_proccessed_img(input_path, frame_data)

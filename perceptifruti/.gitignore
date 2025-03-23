@@ -22,6 +22,7 @@ media
 
 # Generated files
 .idea/**/contentModel.xml
+banana_model.h5
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
