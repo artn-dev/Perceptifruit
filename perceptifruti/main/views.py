@@ -11,6 +11,10 @@ from django.views import View
 from detekto.utils import main as perform_detection, draw_bboxes_with_classification
 from detekto.detection_yolox.exps.default.yolox_s import Exp
 from classifier.apps import ClassifierConfig
+from classifier.enums import Ripeness
+from classifier.models import FruitReading
+
+from .models import Fruit
 
 
 def home(request):
@@ -46,7 +50,7 @@ class DetectBananas(View):
         os.makedirs(container_path, exist_ok=True)
 
         filename = os.path.join(container_path, image_name)
-        img = draw_bboxes_with_classification(input_path, frame_data)
+        img = draw_bboxes_with_classification(input_path, frame_data, tags or [])
         cv2.imwrite(filename, img)
 
         return filename
@@ -56,19 +60,35 @@ class DetectBananas(View):
         url = f'{self.request.scheme}://{self.request.get_host()}{settings.MEDIA_URL}images/out/{basename}'
         return url
 
-    async def post(self, request):
-        input_path = self.receive_webcam_image()
+    def post(self, request):
+        # input_path = self.receive_webcam_image()
+        input_path = '/app/assets/romero/WhatsApp Image 2025-03-30 at 16.19.22.jpeg'
+        banana, _ = Fruit.objects.get_or_create(name='banana')
+
         banana_crops, frame_data  = perform_detection(Exp(), input_path)
 
-        # TODO: Passar imagens de bananas para classificador gerar lista de classificações
         classifier = ClassifierConfig.model
+        tags = []
+        counts = {k.label: 0 for k in Ripeness}
         if classifier:
-            classifier.classify_image(os.path.join(settings.BASE_DIR / 'test_train_dataset/CLASS B/0 (1).png'))
-            pass
+            for crop in banana_crops:
+                class_ = classifier.classify_image(image_array=crop)
+                label = Ripeness(class_).label
 
-        output_path = self.save_proccessed_img(input_path, frame_data)
+                tags.append(label)
+                counts[label] += 1
+                FruitReading.objects.create(fruit=banana, reading=class_)
+
+        output_path = self.save_proccessed_img(input_path, frame_data, tags)
         output_url = self.get_url(output_path)
 
-        os.remove(input_path)
+        # os.remove(input_path)
 
-        return JsonResponse({ 'image_url': output_url })
+        return JsonResponse({
+            'image_url': output_url,
+            'verde': counts[Ripeness.GREEN.label],
+            'amadurecendo': counts[Ripeness.RIPENING.label],
+            'maduras': counts[Ripeness.RIPE.label],
+            'passadas': counts[Ripeness.OVERRIPE.label],
+            'cachos_analisados': len(frame_data),
+        })

@@ -7,9 +7,10 @@ import h5py as h5
 from django.conf import settings
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
-
+from typing import List, Tuple
+from .enums import Ripeness
 
 class RipenessClassifier(nn.Module):
     def __init__(self, filename):
@@ -74,13 +75,28 @@ class RipenessClassifier(nn.Module):
     def load_pretrained_model(self):
         return tf.keras.models.load_model('perceptifruti/banana_model.h5')
     
-    def classify_image(self, image_path, target_size=(224, 224), class_labels=['A', 'B', 'C', 'D']):
-        image = load_img(image_path, target_size)
-        image_array = img_to_array(image) / 255.0
-        image_array = np.expand_dims(image_array, axis=0)
-        image_array = np.repeat(image_array, 3, axis=-1)
+    def classify_image(
+            self,
+        image_path: str = None,
+        image_array: np.ndarray = None,
+        target_size: Tuple[int, int] = (224, 224),
+        class_labels: List[str] =['A', 'B', 'C', 'D']
+    ) -> str:
+        # image = load_img(image_path, target_size)
+        # image_array = img_to_array(image) / 255.0
+
+        image_array = tf.image.resize(image_array, target_size).numpy()
+        # Se houver mais de 3 canais, usa apenas os 3 primeiros
+        if image_array.shape[-1] > 3:
+            image_array = image_array[..., :3]
+        # Normaliza e adiciona dimensão extra para batch
+        image_array = image_array / 255.0
+        image_array = np.expand_dims(image_array, axis=0)  
+
+        # image_array = np.expand_dims(image_array, axis=0)
+        # image_array = np.repeat(image_array, 3, axis=-1)
         
         prediction = self.load_pretrained_model().predict(image_array)
         predicted_class = np.argmax(prediction)
 
-        print(f'Predicted Class: {class_labels[predicted_class]}')
+        return class_labels[predicted_class]
