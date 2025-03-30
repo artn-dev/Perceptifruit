@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, now
 from django.db import models
 from .enums import Ripeness
 
@@ -7,7 +7,7 @@ from .enums import Ripeness
 class FruitReading(models.Model):
     fruit = models.ForeignKey('main.Fruit', on_delete=models.CASCADE)
     reading = models.CharField(max_length=8, choices=Ripeness.choices())
-    read = models.DateTimeField(auto_now_add=True)
+    read = models.DateTimeField(default=now)
 
     @admin.display(description='Reading')
     def reading_display(self):
