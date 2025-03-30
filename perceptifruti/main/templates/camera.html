@@ -1,77 +1,100 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} {% load static %} {% block head %}
+<script
+  type="text/javascript"
+  src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"
+></script>
+<style>
+  #analysis-container {
+    font-size: clamp(1rem, 1.45vw, 22px);
+  }
 
-{% block head %}
-	<script type="text/javascript" src="https://unpkg.com/webcam-easy/dist/webcam-easy.min.js"></script>
-	<style>
-		#analysis-container {
-			font-size: clamp(1rem, 1.45vw, 22px)
-		}
-	</style>
-{% endblock %}
-
-{% block content %}
+</style>
+{% endblock %} {% block content %}
 <div class="container d-flex justify-content-center align-items-center h-100">
-	<div class="row flex-grow-1">
-		<div class="col-lg-8 align-self-center">
-			<div class="card">
-				<div class="card-body">
-					<div id="stream-container">
-						<video id="webcam" autoplay playsinline class="w-100 h-auto"></video>
-						<canvas id="canvas" class="d-none"></canvas>
-					</div>
-					<div id="picture-container" class="py-5 d-flex gap-3 d-none">
-						<span class="visually-hidden">Loading...</span>
-						<div class="spinner-grow text-dark" role="status" style="width: 3rem; height: 3rem;">
-						</div>
-						<div class="spinner-grow text-dark" role="status" style="width: 3rem; height: 3rem;">
-						</div>
-						<div class="spinner-grow text-dark" role="status" style="width: 3rem; height: 3rem;">
-						</div>
-						<img src="" alt="" id="picture-img">
-					</div>
+  <div class="row flex-grow-1">
+    <div class="col-lg-8 align-self-center">
+      <div class="card border-0 shadow" style="max-height: 512px; overflow: auto;">
+        <div class="card-body d-flex">
+          <div id="stream-container">
+            <video
+              id="webcam"
+              autoplay
+              playsinline
+              class="w-100 h-auto"
+            ></video>
+            <canvas id="canvas" class="d-none"></canvas>
+          </div>
+          <div id="picture-container" class="py-5 d-flex justify-content-center gap-3 d-none">
+            <span class="visually-hidden">Loading...</span>
+            <div
+              class="spinner-grow text-dark loading"
+              role="status"
+              style="width: 3rem; height: 3rem"
+            ></div>
+            <div
+              class="spinner-grow text-dark loading"
+              role="status"
+              style="width: 3rem; height: 3rem"
+            ></div>
+            <div
+              class="spinner-grow text-dark loading"
+              role="status"
+              style="width: 3rem; height: 3rem"
+            ></div>
+            <img src="" alt="" id="picture-img" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+          </div>
+        </div>
+      </div>
 
-
-				</div>
-
-
-				
-			</div>
-
-			<button id="take-photo-button" class="btn btn-secondary rounded mt-2 w-100">Tirar foto</button>
-		</div>
-		<div class="col-lg-4 mt-5 mt-lg-0" id="analysis-container">
-			<div class="card">
-				<div class="card-header">
-					<h5 class="mb-0">Análise</h5>
-				</div>
-				<div class="card-body d-flex flex-column gap-3">
-					<div>
-						<p class="mb-0">Bananas Verdes <span>x</span> cacho(s) </p> 
-						<p class="mb-0">Bananas Amadurecendo <span>x</span> cacho(s) </p> 
-						<p class="mb-0">Bananas Maduras <span>x</span> cacho(s) </p> 
-						<p class="mb-0">Bananas Passadas <span>x</span> cacho(s) </p> 
-						<p class="mb-0">Cachos analisados: <span>x</span></p> 
-					</div>
-					<div>
-						<p class="mb-1"><b>Diagnóstico</b></p>
-						<p class="mb-0">A maior parte das bananas está amadurecendo</p>
-						<p class="mb-0 text-warnign">Várias bananas irão passar do ponto nos próxioms dias</p>
-						<p class="mb-0 text-error">Várias bananas irão passar do ponto nos próxioms dias</p>
-					</div>
-					<div><i>Última atualização há: x dias atrás</i></div>
-
-				</div>
-			</div>
-		</div>
-		
-	</div>
+      <button
+        id="take-photo-button"
+        class="btn btn-secondary rounded-5 mt-2 w-100"
+      >
+        Tirar foto
+      </button>
+    </div>
+    <div class="col-lg-4 mt-5 mt-lg-0" id="analysis-container">
+      <div class="card border-0 shadow">
+        <div class="card-header">
+          <h5 class="mb-0">Análise</h5>
+        </div>
+        <div class="card-body d-flex flex-column gap-3">
+          <div>
+            <p class="mb-0">
+              Bananas Verdes: <span id="verde-count">0</span> cacho(s)
+            </p>
+            <p class="mb-0">
+              Bananas Amadurecendo:
+              <span id="amadurecendo-count">0</span> cacho(s)
+            </p>
+            <p class="mb-0">
+              Bananas Maduras: <span id="maduras-count">0</span> cacho(s)
+            </p>
+            <p class="mb-0">
+              Bananas Passadas: <span id="passadas-count">0</span> cacho(s)
+            </p>
+            <p class="mb-0">
+              Cachos analisados: <span id="cachos_analisados-count">0</span>
+            </p>
+          </div>
+          <div>
+            <p class="mb-1"><b>Diagnóstico</b></p>
+            <p class="mb-0">A maior parte das bananas está amadurecendo</p>
+            <p class="mb-0 text-warnign">
+              Várias bananas irão passar do ponto nos próxioms dias
+            </p>
+            <p class="mb-0 text-error">
+              Várias bananas irão passar do ponto nos próxioms dias
+            </p>
+          </div>
+          <div><i>Última atualização há: x dias atrás</i></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-{% csrf_token %}
-{% endblock %}
-
-{% block script %}
-	<script>
+{% csrf_token %} {% endblock %} {% block script %}
+<script>
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -88,56 +111,64 @@
         }
 
         const csrftoken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
-		const webcamElement = document.getElementById('webcam');
-		const canvasElement = document.getElementById('canvas');
-		const webcam = new Webcam(webcamElement, 'user', canvasElement);
-		
-		navigator.mediaDevices
-			.getUserMedia({ video: true })
-			.then((stream) => {
-				webcamElement.srcObject = stream;
-			})
-			.catch((error) => {
-				console.log('Error accessing webcam:', error);
-			})
+  const webcamElement = document.getElementById('webcam');
+  const canvasElement = document.getElementById('canvas');
+  const webcam = new Webcam(webcamElement, 'user', canvasElement);
 
-		document.getElementById('take-photo-button').addEventListener('click', async function() {
-			const pictureContainer = document.getElementById('picture-container');
-			const pictureImage = document.getElementById('picture-img');
-			const spinner = document.getElementById('picture-img');
-			const streamContainer = document.getElementById('stream-container');
-			console.log("stream container is", streamContainer)
+  navigator.mediaDevices
+  	.getUserMedia({ video: true })
+  	.then((stream) => {
+  		webcamElement.srcObject = stream;
+  	})
+  	.catch((error) => {
+  		console.log('Error accessing webcam:', error);
+  	})
 
-			pictureContainer.classList.remove('d-none');
-			pictureImage.classList.add('d-none');
-			spinner.classList.remove('d-none');
-			streamContainer.classList.add('d-none');
+  document.getElementById('take-photo-button').addEventListener('click', async function() {
+  	const pictureContainer = document.getElementById('picture-container');
+  	const pictureImage = document.getElementById('picture-img');
+  	const streamContainer = document.getElementById('stream-container');
+  	console.log("stream container is", streamContainer)
 
-			const context = canvasElement.getContext('2d');
-			canvasElement.width = webcamElement.videoWidth;
-			canvasElement.height = webcamElement.videoHeight;
-			context.drawImage(webcamElement, 0, 0, canvasElement.width, canvasElement.height);
-            
-            const formData = new FormData();
-			const picture = canvasElement.toDataURL('image/png');
-            formData.append('image', picture);
+  	streamContainer.classList.add('d-none');
+  	pictureContainer.classList.remove('d-none');
+  	pictureImage.classList.add('d-none');
+    document.querySelectorAll('.loading').forEach(element => {
+      element.classList.remove('d-none');
+    })
 
-            const res = await fetch('{% url 'receive_webcam_image' %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                },
-                body: formData,
-            })
-			
-			const data = await res.json();
-			const imageUrl = data.image_url;
-			
-			spinner.classList.add('d-none');
-			pictureImage.src = imageUrl;
-			pictureImage.classList.remove('d-none');
-		});
-	</script>
+  	const context = canvasElement.getContext('2d');
+  	canvasElement.width = webcamElement.videoWidth;
+  	canvasElement.height = webcamElement.videoHeight;
+  	context.drawImage(webcamElement, 0, 0, canvasElement.width, canvasElement.height);
+
+    const formData = new FormData();
+  	const picture = canvasElement.toDataURL('image/png');
+    formData.append('image', picture);
+
+    const res = await fetch('{% url 'receive_webcam_image' %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+        body: formData,
+    })
+
+
+  	const data = await res.json();
+  	const imageUrl = data.image_url;
+
+    document.querySelectorAll('.loading').forEach(element => {
+      element.classList.add('d-none');
+    })
+  	pictureImage.src = imageUrl;
+  	pictureImage.classList.remove('d-none');
+
+    document.getElementById("verde-count").innerHTML = data.verde;
+    document.getElementById("amadurecendo-count").innerHTML = data.amadurecendo;
+    document.getElementById("maduras-count").innerHTML = data.maduras;
+    document.getElementById("passadas-count").innerHTML = data.passadas;
+    document.getElementById("cachos_analisados-count").innerHTML = data.cachos_analisados;
+  });
+</script>
 {% endblock %}
-
-
