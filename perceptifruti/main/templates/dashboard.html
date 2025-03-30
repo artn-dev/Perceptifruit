@@ -43,12 +43,27 @@
       <th>Estágio</th>
       <th>Quantidade</th>
       <th>Percentual</th>
-      <th>Tendência</th>
     </tr>
-    <tr><td>Verde</td><td>120</td><td>40%</td><td>↘ Diminuindo</td></tr>
-    <tr><td>Amadurecendo</td><td>90</td><td>30%</td><td>↗ Subindo</td></tr>
-    <tr><td>Maduro</td><td>70</td><td>23%</td><td>↗ Subindo</td></tr>
-    <tr><td>Passado</td><td>20</td><td>7%</td><td>↔ Estável</td></tr>
+    <tr>
+      <td>Verde</td>
+      <td>120</td>
+      <td>40%</td>
+    </tr>
+    <tr>
+      <td>Amadurecendo</td>
+      <td>90</td>
+      <td>30%</td>
+    </tr>
+    <tr>
+      <td>Maduro</td>
+      <td>70</td>
+      <td>23%</td>
+    </tr>
+    <tr>
+      <td>Passado</td>
+      <td>20</td>
+      <td>7%</td>
+    </tr>
   </table>
 
   <div class="row">
@@ -83,16 +98,34 @@
   <script>
     var options1 = {
       chart: { type: 'line', height: 300 },
-      series: [
-        { name: 'Verde', data: [140, 130, 120, 115, 110, 105, 100] },
-        { name: 'Amadurecendo', data: [60, 70, 80, 85, 90, 95, 100] },
-        { name: 'Maduro', data: [20, 30, 40, 50, 60, 70, 75] },
-        { name: 'Passado', data: [5, 10, 15, 17, 18, 19, 20] }
+      series: [],
+      colors: [
+        '#27ae60',
+        '#f1c40f',
+        '#e67e22',
+        '#ff4560',
       ],
-      xaxis: { categories: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] }
+      xaxis: {
+        categories: []
+      }
     };
     var chart1 = new ApexCharts(document.querySelector("#graficoMaturacao"), options1);
     chart1.render();
+
+    const loadRipenessData = async () => {
+      const res = await fetch('{% url "ripeness-data" 1 %}');
+    
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      console.log(data)
+      chart1.updateOptions({
+        series: data.series,
+        xaxis: { categories: data.categories }
+      });
+    }
 
     var options2 = {
       chart: { type: 'donut', height: 300 },
@@ -102,6 +135,38 @@
     };
     var chart2 = new ApexCharts(document.querySelector("#graficoCompras"), options2);
     chart2.render();
+
+    const mapeamentoEstagios = {
+      "verde": "Verde",
+      "amadurecendo": "Amadurecendo",
+      "madura": "Maduro",
+      "passada": "Passado"
+    };
+
+    const loadTableData = async () => {
+      const res = await fetch('{% url "table-data" 1 %}');
+      const dados = await res.json();
+
+      const linhas = document.querySelectorAll('table tr:not(:first-child)');
+
+      linhas.forEach(linha => {
+        const celulas = linha.querySelectorAll('td');
+        const textoEstagio = celulas[0].textContent.trim().toLowerCase();
+        
+        const chave = Object.keys(mapeamentoEstagios).find(
+          key => mapeamentoEstagios[key].toLowerCase() === textoEstagio
+        );
+        
+        if (chave) {
+          celulas[1].textContent = dados.counts[chave];
+          celulas[2].textContent = `${Math.round(dados.percentages[chave])}%`;
+        }
+      });
+    }
+
+
+    loadRipenessData();
+    loadTableData();    
   </script>
   {% endblock %}
 
