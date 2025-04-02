@@ -79,7 +79,7 @@
 
   <h2>Ações Sugeridas</h2>
   <div class="acoes">
-    <ul>
+    <ul class="mb-0">
       <li><strong>Verdes:</strong> Estoque adequado, sem ação imediata.</li>
       <li><strong>Amadurecendo:</strong> Priorizar exposição nas gôndolas.</li>
       <li><strong>Maduras:</strong> Aplicar desconto promocional.</li>
@@ -87,12 +87,9 @@
     </ul>
   </div>
 
-  <h2>Alertas</h2>
-  <div class="alerta">
-    ⚠️ Volume alto de frutas maduras ainda sem venda. Considere aplicar desconto.
-  </div>
-  <div class="alerta">
-    ⚠️ Lote novo recebido enquanto ainda há excesso de frutas maduras no estoque.
+  <div id="alert-section" style="display: none;">
+	  <h2>Alertas</h2>
+	  <div id="alert-container"></div>
   </div>
 
   <script>
@@ -162,6 +159,38 @@
           celulas[2].textContent = `${Math.round(dados.percentages[chave])}%`;
         }
       });
+
+      const alertContainer = document.getElementById('alert-container');
+      alertContainer.innerHTML = '';
+
+      const alerts = [];
+      if (dados.percentages.madura > 25) {
+        alerts.push("⚠️ Volume alto de frutas maduras ainda sem venda. Considere aplicar desconto.");
+      }
+      if (dados.percentages.passada > 5) {
+        alerts.push("⚠️ Há um volume significativo de frutas passadas. Avalie para doação ou retirada.");
+      }
+      if (dados.percentages.verde > 40) {
+        alerts.push("⚠️ Grande quantidade de bananas verdes. Verifique o controle de colheita.");
+      }
+      if (dados.percentages.amadurecendo > 30) {
+        alerts.push("⚠️ Alto volume de bananas amadurecendo. Priorize a exposição nas gôndolas.");
+      }
+
+      alerts.forEach(alertaMsg => {
+        const alertaEl = document.createElement('div');
+        alertaEl.className = 'alerta';
+        alertaEl.innerText = alertaMsg;
+        alertContainer.appendChild(alertaEl);
+      });
+
+		const alertSection = document.getElementById('alert-section');
+		if (alerts.length > 0) {
+			alertSection.style.display = 'block';
+		} else {
+			alertSection.style.display = 'none';
+		}
+	};
     }
 
 

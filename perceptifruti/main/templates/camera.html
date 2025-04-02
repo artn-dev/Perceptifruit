@@ -7,14 +7,14 @@
   #analysis-container {
     font-size: clamp(1rem, 1.45vw, 22px);
   }
-
 </style>
 {% endblock %} {% block content %}
+
 <div class="container d-flex justify-content-center align-items-center h-100">
   <div class="row flex-grow-1">
     <div class="col-lg-8 align-self-center">
       <div class="card border-0 shadow" style="max-height: 512px; overflow: auto;">
-        <div class="card-body d-flex">
+        <div class="card-body d-flex justify-content-center">
           <div id="stream-container">
             <video
               id="webcam"
@@ -77,23 +77,40 @@
               Cachos analisados: <span id="cachos_analisados-count">0</span>
             </p>
           </div>
-          <div>
+		  <div id="diagnostic-container" class="d-none">
             <p class="mb-1"><b>Diagnóstico</b></p>
-            <p class="mb-0">A maior parte das bananas está amadurecendo</p>
-            <p class="mb-0 text-warnign">
-              Várias bananas irão passar do ponto nos próxioms dias
-            </p>
-            <p class="mb-0 text-error">
-              Várias bananas irão passar do ponto nos próxioms dias
-            </p>
+            <p class="mb-0" id="diagnostic-message"></p>
           </div>
-          <div><i>Última atualização há: x dias atrás</i></div>
+
+		  <div class="{% if not last_update %} d-none {% endif %}"><i>Última atualização: <span id="last-update"> {{ last_update }} </span></i></div>
         </div>
+      </div>
+	  <a href="{% url 'dashboard' %}" class="btn btn-primary w-100 mt-4">Ir para o dashboard</a>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="bananaModal" tabindex="-1" aria-labelledby="bananaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+		<div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="bananaModalLabel">Alerta</h5>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
       </div>
     </div>
   </div>
 </div>
-{% csrf_token %} {% endblock %} {% block script %}
+
+{% csrf_token %}
+
+{% endblock %}
+
+{% block script %}
 <script>
         function getCookie(name) {
             let cookieValue = null;
@@ -123,6 +140,12 @@
   	.catch((error) => {
   		console.log('Error accessing webcam:', error);
   	})
+
+
+  // const mensagem = "Foi detectado 1 cacho com bananas estragadas.";
+  // document.querySelector('#bananaModal .modal-body').innerText = mensagem;
+  // const bananaModal = new bootstrap.Modal(document.getElementById('bananaModal'));
+  // bananaModal.show();
 
   document.getElementById('take-photo-button').addEventListener('click', async function() {
   	const pictureContainer = document.getElementById('picture-container');
@@ -169,6 +192,48 @@
     document.getElementById("maduras-count").innerHTML = data.maduras;
     document.getElementById("passadas-count").innerHTML = data.passadas;
     document.getElementById("cachos_analisados-count").innerHTML = data.cachos_analisados;
+	
+
+	const qtdPassadas = parseInt(data.passadas);
+	if (qtdPassadas > 0) {
+	  let mensagem = "";
+	  if (qtdPassadas === 1) {
+		  mensagem = "Foi detectado 1 cacho com bananas estragadas.";
+	  } else {
+		  mensagem = `Foram detectados ${qtdPassadas} cachos com bananas estragadas.`;
+	  }
+	  document.querySelector('#bananaModal .modal-body').innerText = mensagem;
+	  const bananaModal = new bootstrap.Modal(document.getElementById('bananaModal'));
+	  bananaModal.show();
+	}
+
+
+	const verde = parseInt(data.verde);
+	const amadurecendo = parseInt(data.amadurecendo);
+	const maduras = parseInt(data.maduras);
+	const passadas = parseInt(data.passadas);
+
+	let diagnosis = "";
+	  if (passadas <= 0 ) {
+		const maxEstado = Math.max(verde, amadurecendo, maduras);
+		if (maxEstado === 0) {
+			diagnosis = "";
+		} else if (maxEstado === verde) {
+			diagnosis = "A maior parte das bananas está verde.";
+		} else if (maxEstado === amadurecendo) {
+			diagnosis = "A maior parte das bananas está amadurecendo.";
+		} else {
+			diagnosis = "Várias bananas irão passar do ponto nos próximos dias.";
+		}
+	  }
+	else {
+		diagnosis = `${qtdPassadas} ${qtdPassadas === 1 ? "cacho está" : "cachos estão"} com bananas estragadas.`
+	}
+
+	document.getElementById("diagnostic-message").innerText = diagnosis;
+	document.getElementById("diagnostic-container").classList.remove("d-none");
   });
+
+
 </script>
 {% endblock %}
