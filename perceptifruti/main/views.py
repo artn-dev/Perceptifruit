@@ -63,8 +63,7 @@ class DetectBananas(View):
         return url
 
     def post(self, request):
-        # input_path = self.receive_webcam_image()
-        input_path = '/app/assets/romero/WhatsApp Image 2025-03-30 at 16.19.22.jpeg'
+        input_path = self.receive_webcam_image()
         banana, _ = Fruit.objects.get_or_create(name='banana')
 
         banana_crops, frame_data  = perform_detection(Exp(), input_path)
@@ -84,7 +83,7 @@ class DetectBananas(View):
         output_path = self.save_proccessed_img(input_path, frame_data, tags)
         output_url = self.get_url(output_path)
 
-        # os.remove(input_path)
+        os.remove(input_path)
 
         return JsonResponse({
             'image_url': output_url,
